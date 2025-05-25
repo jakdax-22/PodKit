@@ -70,12 +70,12 @@ class UserModel {
                   WHERE ID_usuario != ? 
                   AND ID_usuario NOT IN (
                       SELECT id_emisor 
-                      FROM Seguimiento 
+                      FROM seguimiento 
                       WHERE id_receptor = ? 
                       AND estado = 'Aceptada'
                       UNION
                       SELECT id_receptor 
-                      FROM Seguimiento 
+                      FROM seguimiento 
                       WHERE id_emisor = ? 
                       AND estado = 'Aceptada'
                   )";
@@ -135,10 +135,16 @@ class UserModel {
 
     public function updateUserData($userId,$name,$email,$avatarPath) {    
         // Preparar la consulta SQL para actualizar el usuario
-        $query = "UPDATE usuarios SET nombre_usuario=?, correo_electronico=?, foto_perfil=? WHERE ID_usuario=?";
-        $stmt = $this->db->prepare($query);
-        $stmt->bind_param("sssi", $name,$email,$avatarPath, $userId);
-    
+        if ($avatarPath && $avatarPath != null){
+            $query = "UPDATE usuarios SET nombre_usuario=?, correo_electronico=?, foto_perfil=? WHERE ID_usuario=?";
+            $stmt = $this->db->prepare($query);
+            $stmt->bind_param("sssi", $name,$email,$avatarPath, $userId);
+        }
+        else {
+            $query = "UPDATE usuarios SET nombre_usuario=?, correo_electronico=? WHERE ID_usuario=?";
+            $stmt = $this->db->prepare($query);
+            $stmt->bind_param("ssi", $name,$email, $userId);
+        }
         // Ejecutar la consulta preparada
         if ($stmt->execute()) {
             return true;

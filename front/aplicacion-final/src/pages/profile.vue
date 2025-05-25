@@ -5,8 +5,17 @@
           <v-card class="mb-5">
             <v-card-title>
               <v-avatar size="64" class="mr-3">
-                <v-img v-if="!userData.foto_perfil || userData.foto_perfil == '0'" src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png"></v-img>
-                <v-img v-else :src="`${API_URL}/${userData.foto_perfil}`"></v-img>
+                <v-img
+                  class="profile-avatar-img"
+                  v-if="!userData.foto_perfil || userData.foto_perfil == '0'"
+                  src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png">
+                </v-img>
+                <v-img
+                  class="profile-avatar-img"
+                  v-else
+                  :src="`${API_URL}/${userData.foto_perfil}`">
+                </v-img>
+
               </v-avatar>
               <span class="headline">{{ userData.nombre_usuario }}</span>
             </v-card-title>
@@ -104,7 +113,7 @@
                 <v-list-item v-for="notification in notifications" :key="notification.id">
                   <v-list-item-content>
                     <v-list-item-title class="d-flex justify-space-between align-center">
-                      <span>{{ notification.contenido }}</span>
+                      <span>{{ truncateContent(notification.contenido) }}</span>
                       <v-btn icon @click="markAsRead(notification.id)">
                         <v-icon color="green">mdi-check</v-icon>
                       </v-btn>
@@ -312,7 +321,6 @@
 
         await fetchUserData();
         updatedUserData.avatar = userData.value.foto_perfil;
-        authStore.setUserData(updatedUserData);
       }
     } catch (error) {
       console.error('Error:', error);
@@ -360,6 +368,11 @@
     } catch (error) {
       console.error('Error:', error);
     }
+  };
+
+  const truncateContent = (content) => {
+  // Si el contenido tiene más de 30 caracteres, lo corta y le añade "..."
+    return content.length > 50 ? content.slice(0, 50) + "..." : content;
   };
 
   const declineFriendRequest = async (requestId) => {
@@ -497,7 +510,13 @@
     const userId = JSON.parse(sessionStorage.getItem('userData')).id;
     try {
       const response = await userService.getUserData(userId);
-      
+      const sessionObject = {
+        username: response.data.nombre_usuario,
+        id: response.data.ID_usuario,
+        role: response.data.rol,
+        avatar: response.data.foto_perfil
+      };
+      sessionStorage.setItem('userData', JSON.stringify(sessionObject));
       userData.value = response.data;
       if (!userData.value.foto_perfil) 
         userData.value.default = defaultAvatar;
@@ -540,6 +559,20 @@
     fetchFriends();
     fetchNotifications();
   })
+  import { watch } from 'vue';
+
+  watch(() => userData.value.foto_perfil, (newVal, oldVal) => {
+    if (newVal !== oldVal) {
+      // Recarga explícita de la imagen en el avatar si cambia
+      const imgElement = document.querySelector('.profile-avatar-img');
+      if (imgElement) {
+        imgElement.src = newVal && newVal !== '0' 
+          ? `${API_URL}/${newVal}?t=${Date.now()}` // Evita cache con query param
+          : 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png';
+      }
+    }
+  });
+
   </script>
   
   <style scoped>

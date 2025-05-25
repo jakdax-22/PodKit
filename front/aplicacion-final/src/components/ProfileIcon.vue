@@ -71,7 +71,7 @@
 
   const menu = ref(false)
   const userData = computed(() => authStore.userData)
-
+  
   const deleteSession = () => {
     authStore.logout() // Llama al método de logout del store de Pinia
     router.push({ path: '/' }) // Redirige a la página principal

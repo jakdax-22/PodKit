@@ -44,12 +44,63 @@
       <v-card>
         <v-card-title>Editar Podcast</v-card-title>
         <v-card-text>
-          <v-text-field v-model="editedPodcast.title" label="Título"></v-text-field>
-          <v-textarea v-model="editedPodcast.description" label="Descripción"></v-textarea>
-          <v-select v-model="editedPodcast.category" :items="categories" label="Categoría"></v-select>
-          <v-file-input v-model="editedPodcast.thumbnailFile" label="Thumbnail" accept="image/*"></v-file-input>
-          <v-text-field v-model="editedPodcast.localFile" label="Podcast (guardado en el equipo)"></v-text-field>
-          <v-text-field v-model="editedPodcast.youtubeLink" label="Enlace de YouTube"></v-text-field>
+          <v-form ref="editForm" @submit.prevent="saveChanges">
+            <v-text-field
+              v-model="editedPodcast.title"
+              label="Título"
+              :rules="[v => !!v || 'El título es obligatorio']"
+              required
+            ></v-text-field>
+
+            <v-textarea
+              v-model="editedPodcast.description"
+              label="Descripción"
+              :rules="[v => !!v || 'La descripción es obligatoria']"
+              required
+            ></v-textarea>
+
+            <v-select
+              v-model="editedPodcast.category"
+              :items="categories"
+              label="Categoría"
+              :rules="[v => !!v || 'Debes seleccionar una categoría']"
+              required
+            ></v-select>
+
+            <v-select
+              v-model="editedPodcast.contentOption"
+              :items="['Podcast (guardado en el equipo)', 'Enlace de YouTube']"
+              label="Tipo de contenido"
+              :rules="[v => !!v || 'Debes seleccionar un tipo de contenido']"
+              required
+            ></v-select>
+
+            <v-file-input
+              v-model="editedPodcast.thumbnailFile"
+              label="Thumbnail"
+              accept="image/*"
+              required
+              :error-messages="thumbnailError"
+              @change="validateThumbnail"
+            ></v-file-input>
+
+            <v-file-input
+              v-if="editedPodcast.contentOption === 'Podcast (guardado en el equipo)'"
+              v-model="editedPodcast.localFile"
+              label="Podcast (si lo tienes guardado en tu equipo)"
+              accept="video/*"
+              required
+              :error-messages="localFileError"
+              @change="validateLocalFile"
+            ></v-file-input>
+
+            <v-text-field
+              v-if="editedPodcast.contentOption === 'Enlace de YouTube'"
+              v-model="editedPodcast.youtubeLink"
+              label="Enlace de YouTube"
+              :rules="[v => isValidYoutubeUrl(v) || 'Ingresa un enlace de YouTube válido']"
+            ></v-text-field>
+          </v-form>
         </v-card-text>
         <v-card-actions>
           <v-btn color="primary" @click="saveChanges">Aceptar</v-btn>
@@ -79,6 +130,11 @@ const fetchPodcasts = async () => {
 };
 
 onMounted(fetchPodcasts);
+
+const isValidYoutubeUrl = (url) => {
+  const pattern = /^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.?be)\/.+$/;
+  return !url || pattern.test(url);
+};
 
 const filteredPodcasts = computed(() => {
   if (search.value && search.value.length > 0){

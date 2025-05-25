@@ -9,7 +9,7 @@ class FriendshipModel {
     }
     public function insertFriendship($selfId, $userId) {
         // Insertar la solicitud de amistad en la tabla Seguimiento
-        $query = "INSERT INTO Seguimiento (id_emisor, id_receptor, estado) VALUES (?, ?, 'Pendiente')";
+        $query = "INSERT INTO seguimiento (id_emisor, id_receptor, estado) VALUES (?, ?, 'Pendiente')";
         $stmt = $this->db->prepare($query);
         $stmt->bind_param("ii", $selfId, $userId);
 
@@ -22,7 +22,7 @@ class FriendshipModel {
     }
     public function getFriendRequests($selfId) {        
         $query = "SELECT u.ID_usuario, u.nombre_usuario, u.foto_perfil 
-                  FROM Seguimiento s
+                  FROM seguimiento s
                   JOIN usuarios u ON s.id_emisor = u.ID_usuario
                   WHERE s.id_receptor = ? AND s.estado = 'Pendiente'";
         $stmt = $this->db->prepare($query);
@@ -38,7 +38,7 @@ class FriendshipModel {
         return $friendRequests;
     }
     public function acceptFriendRequest($selfId,$requestId){
-        $query = "UPDATE Seguimiento SET estado = 'Aceptada' WHERE id_emisor = ? AND id_receptor = ?";
+        $query = "UPDATE seguimiento SET estado = 'Aceptada' WHERE id_emisor = ? AND id_receptor = ?";
         $stmt = $this->db->prepare($query);
         $stmt->bind_param("ii", $requestId, $selfId);
         if ($stmt->execute()) {
@@ -48,7 +48,7 @@ class FriendshipModel {
         }
     }
     public function declineFriendRequest($selfId,$requestId){
-        $query = "DELETE FROM Seguimiento WHERE id_emisor = ? AND id_receptor = ?";
+        $query = "DELETE FROM seguimiento WHERE id_emisor = ? AND id_receptor = ?";
         $stmt = $this->db->prepare($query);
         $stmt->bind_param("ii", $requestId, $selfId);
         if ($stmt->execute()) {
@@ -66,7 +66,7 @@ class FriendshipModel {
             FROM 
                 usuarios u 
             JOIN 
-                Seguimiento s 
+                seguimiento s 
             ON 
                 (u.ID_usuario = s.id_emisor OR u.ID_usuario = s.id_receptor)
             WHERE 

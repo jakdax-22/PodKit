@@ -171,45 +171,65 @@ private function sendErrorResponse($message) {
     echo json_encode(["success" => false, "message" => $message]);
     http_response_code(400);
 }
-    public function updatePodcast() {
-        $user = $this->authorize();
-        // Obtener los datos del formulario
-        $id = $_POST["id"];
-        $title = $_POST["title"];
-        $description = $_POST["description"];
-        $category = $_POST["category"];
-        //Si una no está definida coge la otra
-        $localFile = isset($_FILES["localFile"]) ? $_FILES["localFile"]["name"] : $_POST["youtubeLink"];
-        
+public function updatePodcast() {
+    $user = $this->authorize();
+
+    // Obtener los datos del formulario
+    $id = $_POST["id"];
+    $title = $_POST["title"];
+    $description = $_POST["description"];
+    $category = $_POST["category"];
+
+    // Manejo del archivo de audio o enlace de YouTube
+    if (isset($_FILES["localFile"]) && $_FILES["localFile"]["error"] === UPLOAD_ERR_OK) {
+        $localFileName = $_FILES["localFile"]["name"];
+        $localFileTmp = $_FILES["localFile"]["tmp_name"];
+        $timestamp = time();
+        $newLocalFileName = $timestamp . '_' . $localFileName;
+        $localUploadDir = "../public/assets/podcasts/";
+        $localFilePath = $localUploadDir . $newLocalFileName;
+
+        if (move_uploaded_file($localFileTmp, $localFilePath)) {
+            $localFile = substr($localFilePath, 10); // guardar solo ruta relativa
+        } else {
+            $localFile = null;
+        }
+    } else {
+        // Si no se subió archivo, se usa el enlace de YouTube
+        $localFile = $_POST["youtubeLink"] ?? null;
+    }
+
+    // Manejo del thumbnail
+    if (isset($_FILES["thumbnailFile"]) && $_FILES["thumbnailFile"]["error"] === UPLOAD_ERR_OK) {
         $thumbnailFileName = $_FILES["thumbnailFile"]["name"];
         $timestamp = time();
         $newFileName = $timestamp . '_' . $thumbnailFileName;
 
-        // Directorio de destino para guardar la imagen
         $uploadDirectory = "../public/assets/thumbnail/";
         $uploadedFile = $uploadDirectory . $newFileName;
 
-        // Mover la imagen cargada al directorio de destino
         if (move_uploaded_file($_FILES["thumbnailFile"]["tmp_name"], $uploadedFile)) {
-            // Insertar la ruta de la imagen del thumbnail en la base de datos
-            $thumbnailPath = substr($uploadedFile,10);
+            $thumbnailPath = substr($uploadedFile, 10); // guardar solo ruta relativa
         } else {
-            // Error al mover la imagen
             $thumbnailPath = null;
         }
-        // Insertar el podcast en la base de datos
-        if ($this->podcastModel->updatePodcast($id,$title, $description, $category, $localFile,$thumbnailPath)) {
-            // El podcast se ha insertado correctamente
-            $response = array("success" => true, "message" => "Podcast editado correctamente.");
-            http_response_code(200);
-        } else {
-            // Error al insertar el podcast
-            $response = array("success" => false, "message" => "Error al editar el podcast.");
-            http_response_code(500);
-        }
-        // Devolver la respuesta en formato JSON
-        echo json_encode($response);
+    } else {
+        // No se subió uno nuevo, se mantiene el existente (se lo puedes pasar como campo hidden si lo necesitas)
+        $thumbnailPath = null;
     }
+
+    // Actualizar el podcast en la base de datos
+    if ($this->podcastModel->updatePodcast($id, $title, $description, $category, $localFile, $thumbnailPath)) {
+        $response = array("success" => true, "message" => "Podcast editado correctamente.");
+        http_response_code(200);
+    } else {
+        $response = array("success" => false, "message" => "Error al editar el podcast.");
+        http_response_code(500);
+    }
+
+    echo json_encode($response);
+    }
+
     public function showPodcasts(){
         echo json_encode($this->podcastModel->showPodcasts(), JSON_INVALID_UTF8_IGNORE);
     }
@@ -330,7 +350,7 @@ private function sendErrorResponse($message) {
         $selfId = intval($_POST['id_emisor']);
         $userId = intval($_POST['id_receptor']);
         // Verificar si ya existe una solicitud pendiente entre los usuarios
-        $query = "SELECT * FROM Seguimiento WHERE (id_emisor = ? AND id_receptor = ?) OR (id_emisor = ? AND id_receptor = ?)";
+        $query = "SELECT * FROM seguimiento WHERE (id_emisor = ? AND id_receptor = ?) OR (id_emisor = ? AND id_receptor = ?)";
         $stmt = $this->db->prepare($query);
         $stmt->bind_param("iiii", $selfId, $userId, $userId, $selfId);
         $stmt->execute();

@@ -8,7 +8,7 @@ class MessageModel {
         $this->db = $db;
     }
     public function sendMessage($selfId, $receptorId, $message) {
-        $query = "INSERT INTO Mensajes (id_emisor, id_receptor, mensaje) VALUES (?, ?, ?)";
+        $query = "INSERT INTO mensajes (id_emisor, id_receptor, mensaje) VALUES (?, ?, ?)";
         $stmt = $this->db->prepare($query);
         $stmt->bind_param("iis", $selfId, $receptorId, $message);
         if ($stmt->execute()) {
@@ -18,7 +18,7 @@ class MessageModel {
         }
     }
     public function getMessages($selfId, $receptorId) {
-        $query = "SELECT * FROM Mensajes WHERE (id_emisor = ? AND id_receptor = ?) OR (id_emisor = ? AND id_receptor = ?) ORDER BY fecha ASC";
+        $query = "SELECT * FROM mensajes WHERE (id_emisor = ? AND id_receptor = ?) OR (id_emisor = ? AND id_receptor = ?) ORDER BY fecha ASC";
         $stmt = $this->db->prepare($query);
         $stmt->bind_param("iiii", $selfId, $receptorId, $receptorId, $selfId);
         $stmt->execute();
