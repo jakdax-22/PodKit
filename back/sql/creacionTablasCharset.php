@@ -53,7 +53,7 @@ $sql = "CREATE TABLE IF NOT EXISTS usuarios (
     UNIQUE KEY correo_electronico (correo_electronico),
     KEY rol (rol),
     KEY nombre_usuario (nombre_usuario),
-    FOREIGN KEY (rol) REFERENCES roles(ID_rol)
+    FOREIGN KEY (rol) REFERENCES roles(ID_rol) ON DELETE RESTRICT
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci";
 $conn->query($sql);
 
@@ -69,17 +69,6 @@ $sql = "CREATE TABLE IF NOT EXISTS podcasts (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci";
 $conn->query($sql);
 
-$sql = "CREATE TABLE IF NOT EXISTS notificaciones (
-    ID_podcast INT NOT NULL AUTO_INCREMENT,
-    titulo VARCHAR(100) COLLATE utf8mb4_general_ci NOT NULL,
-    descripcion TEXT COLLATE utf8mb4_general_ci,
-    fecha_subida DATE DEFAULT NULL,
-    archivo VARCHAR(255) COLLATE utf8mb4_general_ci DEFAULT NULL,
-    categoria VARCHAR(50) COLLATE utf8mb4_general_ci DEFAULT NULL,
-    thumbnail TEXT COLLATE utf8mb4_general_ci,
-    PRIMARY KEY (ID_podcast)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci";
-$conn->query($sql);
 
 // Crear tabla Seguimiento
 $sql = "CREATE TABLE IF NOT EXISTS seguimiento (
@@ -88,8 +77,8 @@ $sql = "CREATE TABLE IF NOT EXISTS seguimiento (
     estado VARCHAR(20) COLLATE utf8mb4_general_ci DEFAULT NULL,
     PRIMARY KEY (id_emisor, id_receptor),
     KEY id_receptor (id_receptor),
-    FOREIGN KEY (id_emisor) REFERENCES usuarios(ID_usuario),
-    FOREIGN KEY (id_receptor) REFERENCES usuarios(ID_usuario)
+    FOREIGN KEY (id_emisor) REFERENCES usuarios(ID_usuario) ON DELETE CASCADE,
+    FOREIGN KEY (id_receptor) REFERENCES usuarios(ID_usuario) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci";
 $conn->query($sql);
 
@@ -103,8 +92,8 @@ $sql = "CREATE TABLE IF NOT EXISTS mensajes (
     PRIMARY KEY (id),
     KEY id_emisor (id_emisor),
     KEY id_receptor (id_receptor),
-    FOREIGN KEY (id_emisor) REFERENCES usuarios(ID_usuario),
-    FOREIGN KEY (id_receptor) REFERENCES usuarios(ID_usuario)
+    FOREIGN KEY (id_emisor) REFERENCES usuarios(ID_usuario) ON DELETE CASCADE,
+    FOREIGN KEY (id_receptor) REFERENCES usuarios(ID_usuario) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci";
 $conn->query($sql);
 
@@ -115,8 +104,7 @@ $sql = "CREATE TABLE IF NOT EXISTS notificaciones (
     contenido TEXT COLLATE utf8mb4_general_ci,
     fecha_emision TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (id),
-    KEY ID_usuario (ID_usuario),
-    FOREIGN KEY (ID_usuario) REFERENCES usuarios(ID_usuario)
+    FOREIGN KEY (ID_usuario) REFERENCES usuarios(ID_usuario) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci";
 $conn->query($sql);
 
@@ -130,8 +118,8 @@ $sql = "CREATE TABLE IF NOT EXISTS comentarios (
     PRIMARY KEY (ID_comentario),
     KEY fk_usuario (ID_usuario),
     KEY fk_podcast (ID_podcast),
-    FOREIGN KEY (ID_usuario) REFERENCES usuarios(ID_usuario),
-    FOREIGN KEY (ID_podcast) REFERENCES podcasts(ID_podcast)
+    FOREIGN KEY (ID_usuario) REFERENCES usuarios(ID_usuario) ON DELETE CASCADE,
+    FOREIGN KEY (ID_podcast) REFERENCES podcasts(ID_podcast) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci";
 $conn->query($sql);
 

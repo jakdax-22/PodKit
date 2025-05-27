@@ -73,7 +73,7 @@ CREATE TABLE `usuarios` (
   `correo_electronico` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
   `contrasena` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
   `foto_perfil` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
-  `rol` int DEFAULT NULL
+  `rol` int DEFAULT NULL ON DELETE RESTRICT
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 
@@ -144,23 +144,23 @@ ALTER TABLE `usuarios`
 
 
 ALTER TABLE `comentarios`
-  ADD CONSTRAINT `fk_podcast` FOREIGN KEY (`ID_podcast`) REFERENCES `podcasts` (`ID_podcast`),
-  ADD CONSTRAINT `fk_usuario` FOREIGN KEY (`ID_usuario`) REFERENCES `usuarios` (`ID_usuario`);
+  ADD CONSTRAINT `fk_podcast` FOREIGN KEY (`ID_podcast`) REFERENCES `podcasts` (`ID_podcast`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_usuario` FOREIGN KEY (`ID_usuario`) REFERENCES `usuarios` (`ID_usuario`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 ALTER TABLE `mensajes`
-  ADD CONSTRAINT `mensajes_ibfk_1` FOREIGN KEY (`id_emisor`) REFERENCES `usuarios` (`ID_usuario`),
-  ADD CONSTRAINT `mensajes_ibfk_2` FOREIGN KEY (`id_receptor`) REFERENCES `usuarios` (`ID_usuario`);
+  ADD CONSTRAINT `mensajes_ibfk_1` FOREIGN KEY (`id_emisor`) REFERENCES `usuarios` (`ID_usuario`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `mensajes_ibfk_2` FOREIGN KEY (`id_receptor`) REFERENCES `usuarios` (`ID_usuario`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 ALTER TABLE `notificaciones`
-  ADD CONSTRAINT `notificaciones_ibfk_1` FOREIGN KEY (`ID_usuario`) REFERENCES `usuarios` (`ID_usuario`);
+  ADD CONSTRAINT `notificaciones_ibfk_1` FOREIGN KEY (`ID_usuario`) REFERENCES `usuarios` (`ID_usuario`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 ALTER TABLE `password_reset_tokens`
   ADD CONSTRAINT `fk_password_reset_tokens_users` FOREIGN KEY (`email`) REFERENCES `usuarios` (`correo_electronico`) ON DELETE CASCADE ON UPDATE RESTRICT;
 
 ALTER TABLE `seguimiento`
-  ADD CONSTRAINT `seguimiento_ibfk_1` FOREIGN KEY (`id_emisor`) REFERENCES `usuarios` (`ID_usuario`),
-  ADD CONSTRAINT `seguimiento_ibfk_2` FOREIGN KEY (`id_receptor`) REFERENCES `usuarios` (`ID_usuario`);
+  ADD CONSTRAINT `seguimiento_ibfk_1` FOREIGN KEY (`id_emisor`) REFERENCES `usuarios` (`ID_usuario`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `seguimiento_ibfk_2` FOREIGN KEY (`id_receptor`) REFERENCES `usuarios` (`ID_usuario`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 ALTER TABLE `usuarios`
-  ADD CONSTRAINT `usuarios_ibfk_1` FOREIGN KEY (`rol`) REFERENCES `roles` (`ID_rol`);
+  ADD CONSTRAINT `usuarios_ibfk_1` FOREIGN KEY (`rol`) REFERENCES `roles` (`ID_rol`) ON DELETE RESTRICT ON UPDATE CASCADE;
 COMMIT;

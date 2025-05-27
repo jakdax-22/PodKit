@@ -39,7 +39,7 @@ $sql = "CREATE TABLE usuarios (
     contrasena VARCHAR(255) NOT NULL,
     foto_perfil VARCHAR(255),
     rol INT,
-    FOREIGN KEY (rol) REFERENCES roles(ID_rol)
+    FOREIGN KEY (rol) REFERENCES roles(ID_rol) ON DELETE RESTRICT
 )";
 $conn->query($sql);
 
@@ -61,8 +61,8 @@ $sql = "CREATE TABLE seguimiento (
     id_receptor INT NOT NULL,
     estado VARCHAR(20),
     PRIMARY KEY (id_emisor, id_receptor),
-    FOREIGN KEY (id_emisor) REFERENCES usuarios(ID_usuario),
-    FOREIGN KEY (id_receptor) REFERENCES usuarios(ID_usuario)
+    FOREIGN KEY (id_emisor) REFERENCES usuarios(ID_usuario) ON DELETE CASCADE,
+    FOREIGN KEY (id_receptor) REFERENCES usuarios(ID_usuario) ON DELETE CASCADE
 )";
 $conn->query($sql);
 
@@ -73,8 +73,8 @@ $sql = "CREATE TABLE mensajes (
     id_receptor INT NOT NULL,
     mensaje TEXT NOT NULL,
     fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (id_emisor) REFERENCES usuarios(ID_usuario),
-    FOREIGN KEY (id_receptor) REFERENCES usuarios(ID_usuario)
+    FOREIGN KEY (id_emisor) REFERENCES usuarios(ID_usuario) ON DELETE CASCADE,
+    FOREIGN KEY (id_receptor) REFERENCES usuarios(ID_usuario) ON DELETE CASCADE
 )";
 $conn->query($sql);
 
@@ -84,7 +84,7 @@ $sql = "CREATE TABLE notificaciones (
     ID_usuario INT,
     contenido TEXT,
     fecha_emision TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (ID_usuario) REFERENCES usuarios(ID_usuario)
+    FOREIGN KEY (ID_usuario) REFERENCES usuarios(ID_usuario) ON DELETE CASCADE
 )";
 $conn->query($sql);
 
@@ -95,8 +95,8 @@ $sql = "CREATE TABLE comentarios (
     ID_podcast INT NOT NULL,
     contenido TEXT NOT NULL,
     fecha_comentario DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (ID_usuario) REFERENCES usuarios(ID_usuario),
-    FOREIGN KEY (ID_podcast) REFERENCES podcasts(ID_podcast)
+    FOREIGN KEY (ID_usuario) REFERENCES usuarios(ID_usuario) ON DELETE CASCADE,
+    FOREIGN KEY (ID_podcast) REFERENCES podcasts(ID_podcast) ON DELETE CASCADE
 )";
 $conn->query($sql);
 
